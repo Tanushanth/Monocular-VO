@@ -16,15 +16,24 @@ if not cap.isOpened():
 idx = 0
 frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 
-
+# Store one frame behinds info
+prevFrameCorners = []
 for i in tqdm(range(int(frame_count))):
     ret, frame = cap.read()
     if not ret:
         print("Unable to read the frame")
-        continue
-    
-    #Whatever we want here
+        continue    
 
+    # Always do extraction
+    currentFrameCorners = extract_features(frame, True)
+
+    if(i != 0):
+        # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
+
+
+
+
+    prevFrameCorners = currentFrameCorners # Save i-1 frame
 
     # cv2.imwrite(f"frame_{idx}.jpg", frame)
     idx+=1
