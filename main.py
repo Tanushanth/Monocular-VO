@@ -17,7 +17,8 @@ idx = 0
 frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 
 # Store one frame behinds info
-prevFrameCorners = []
+prevFrameCorners = ()
+prevFrame = ()
 for i in tqdm(range(int(frame_count))):
     ret, frame = cap.read()
     if not ret:
@@ -29,12 +30,15 @@ for i in tqdm(range(int(frame_count))):
 
     if(i != 0):
         # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
+        prevFrameCorners,currentFrameCorners = feature_tracking(prevFrame, frame, prevFrameCorners, currentFrameCorners)
+        
+
 
 
 
 
     prevFrameCorners = currentFrameCorners # Save i-1 frame
-
+    prevFrame = frame
     # cv2.imwrite(f"frame_{idx}.jpg", frame)
     idx+=1
 
