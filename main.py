@@ -19,6 +19,11 @@ frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 # Store one frame behinds info
 prevFrameCorners = ()
 prevFrame = ()
+rotationArr = np.zeros(shape=(3,3))
+translationArr = np.zeros(shape=(3,3))
+focal = 718.8560
+pp = (607.1928, 185,2157)
+
 for i in tqdm(range(int(frame_count))):
     ret, frame = cap.read()
     if not ret:
@@ -31,7 +36,10 @@ for i in tqdm(range(int(frame_count))):
     if(i != 0):
         # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
         prevFrameCorners,currentFrameCorners = feature_tracking(prevFrame, frame, prevFrameCorners, currentFrameCorners)
-        
+        rotationArr, translationArr = essential_matrix_computation(rotationArr, translationArr, currentFrameCorners, prevFrameCorners, focal, pp, i, poseInfo)
+
+        # Matrixes updated, and corners updated
+        # plot result of our matrix change
 
 
 
