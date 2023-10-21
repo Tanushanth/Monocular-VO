@@ -11,19 +11,26 @@ import os
 #focal: focal length
 #pp: principal point
 #id: index of the image
-#poseInfo: pose information
+#poseInfo: pose information (none if we don't have it)
+#withoutPose: boolean to check if we have pose information
 #output
 #newR: new rotation matrix
 #newt: new translation vector
-def essential_matrix_computation(inputR, inputt, new, old, focal, pp, id, poseInfo):
-        E,_ = cv2.findEssentialMat(new, old, focal, pp, cv2.RANSAC, 0.999, 1.0, None)
-        _, R, t, _ = cv2.reversePose(E, old, new, inputR, inputt, focal, pp, None)
-        if id  >= 2:
-            absolute_scale = get_absolute_scale(poseInfo, id)
-            if (absolute_scale > 0.1 and abs(t[2][0]) > abs(t[0][0]) and abs(t[2][0]) > abs(t[1][0])):
-                inputt = inputt + absolute_scale*inputR.dot(t)
-                inputR = R.dot(inputR)
-        return inputR, inputt
+def essential_matrix_computation(inputR, inputt, new, old, focal, pp, id, poseInfo, withoutPose):
+        if withoutPose:
+            E,_ = cv2.findEssentialMat(new, old, focal, pp, cv2.RANSAC, 0.999, 1.0, None)
+            _, R, t, _ = cv2.reversePose(E, old, new, inputR, inputt, focal, pp, None)
+        else:
+            E,_ = cv2.findEssentialMat(new, old, focal, pp, cv2.RANSAC, 0.999, 1.0, None)
+            _, R, t, _ = cv2.reversePose(E, old, new, inputR, inputt, focal, pp, None)
+            if id  >= 2:
+                absolute_scale = get_absolute_scale(poseInfo, id)
+                if (absolute_scale > 0.1 and abs(t[2][0]) > abs(t[0][0]) and abs(t[2][0]) > abs(t[1][0])):
+                    inputt = inputt + absolute_scale*inputR.dot(t)
+                    inputR = R.dot(inputR)
+                    R = inputR
+                    t = inputt     
+        return R, t
 
 def get_absolute_scale(poseInfo, id):
     pose = poseInfo[id - 1].strip().split()
