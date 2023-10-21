@@ -19,10 +19,10 @@ import os
 def essential_matrix_computation(inputR, inputt, new, old, focal, pp, id, poseInfo, withoutPose):
         if withoutPose:
             E,_ = cv2.findEssentialMat(new, old, focal, pp, cv2.RANSAC, 0.999, 1.0, None)
-            _, R, t, _ = cv2.reversePose(E, old, new, inputR, inputt, focal, pp, None)
+            _, R, t, _ = cv2.recoverPose(E, old, new, inputR, inputt, focal, pp, None)
         else:
             E,_ = cv2.findEssentialMat(new, old, focal, pp, cv2.RANSAC, 0.999, 1.0, None)
-            _, R, t, _ = cv2.reversePose(E, old, new, inputR, inputt, focal, pp, None)
+            _, R, t, _ = cv2.recoverPose(E, old, new, inputR, inputt, focal, pp, None)
             if id  >= 2:
                 absolute_scale = get_absolute_scale(poseInfo, id)
                 if (absolute_scale > 0.1 and abs(t[2][0]) > abs(t[0][0]) and abs(t[2][0]) > abs(t[1][0])):
