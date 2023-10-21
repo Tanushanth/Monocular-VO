@@ -19,35 +19,43 @@ frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 # Store one frame behinds info
 prevFrameCorners = ()
 prevFrame = ()
-rotationArr = np.zeros(shape=(3,3))
-translationArr = np.zeros(shape=(3,3))
+rotationArr = np.zeros(shape=(3, 3))
+translationArr = np.zeros(shape=(3, 3))
 focal = 718.8560
-pp = (607.1928, 185,2157)
+pp = (607.1928, 185, 2157)
+start = np.array([0, 0, 0])
 
 for i in tqdm(range(int(frame_count))):
     ret, frame = cap.read()
     if not ret:
         print("Unable to read the frame")
-        continue    
+        continue
 
     # Always do extraction
     currentFrameCorners = extract_features(frame, True)
 
-    if(i != 0):
+    if i != 0:
         # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
-        prevFrameCorners,currentFrameCorners = feature_tracking(prevFrame, frame, prevFrameCorners, currentFrameCorners)
-        rotationArr, translationArr = essential_matrix_computation(rotationArr, translationArr, currentFrameCorners, prevFrameCorners, focal, pp, i, poseInfo)
+        prevFrameCorners, currentFrameCorners = feature_tracking(
+            prevFrame, frame, prevFrameCorners, currentFrameCorners
+        )
+        rotationArr, translationArr = essential_matrix_computation(
+            rotationArr,
+            translationArr,
+            currentFrameCorners,
+            prevFrameCorners,
+            focal,
+            pp,
+            i,
+            poseInfo,
+        )
 
         # Matrixes updated, and corners updated
         # plot result of our matrix change
 
-
-
-
-
-    prevFrameCorners = currentFrameCorners # Save i-1 frame
+    prevFrameCorners = currentFrameCorners  # Save i-1 frame
     prevFrame = frame
     # cv2.imwrite(f"frame_{idx}.jpg", frame)
-    idx+=1
+    idx += 1
 
 cap.release()
