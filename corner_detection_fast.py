@@ -6,7 +6,7 @@ import common_functions
 
 def extract_features(image, isNmsEnabled: bool) -> any:
     # Read image in grayscale.
-    image = cv2.imread("cuboid.jpeg", cv2.IMREAD_GRAYSCALE)
+    #image = cv2.imread("cuboid.jpeg", cv2.IMREAD_GRAYSCALE)
 
     # Instantiate FAST detector.
     fast_feature_detector = cv2.FastFeatureDetector_create()

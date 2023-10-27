@@ -6,11 +6,12 @@ from matplotlib import pyplot as plt
 import plotly.express as px
 
 # Internal module imports.
-import essential_matrix_computation
+from essential_matrix_computation import essential_matrix_computation
 from featuretracking import feature_tracking
 from corner_detection_fast import extract_features
 
-cap = cv2.VideoCapture("20230605_163120.mp4")
+videopath = "C:/Users/tanus/Downloads/20230605_163120_Trim.mp4"
+cap = cv2.VideoCapture(videopath)
 if not cap.isOpened():
     print("Access error")
     exit()
@@ -19,12 +20,12 @@ idx = 0
 frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 
 # Store one frame behinds info
-prevFrameCorners = ()
+prevFrameCorners = []
 prevFrame = ()
 rotationArr = np.zeros(shape=(3, 3))
-translationArr = np.zeros(shape=(3, 3))
+translationArr = np.empty(shape=(3, 1))
 focal = 718.8560
-pp = (607.1928, 185, 2157)
+pp = (607.1928, 185.2157)
 
 current_point = np.array([0, 0, 0])
 path = [current_point]
@@ -42,18 +43,19 @@ for i in tqdm(range(int(frame_count))):
 
     if i != 0:
         # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
-        prevFrameCorners, currentFrameCorners = feature_tracking(
+        prevCorners, curCorners = feature_tracking(
             prevFrame, frame, prevFrameCorners, currentFrameCorners
         )
         rotationArr, translationArr = essential_matrix_computation(
             rotationArr,
             translationArr,
-            currentFrameCorners,
-            prevFrameCorners,
+            curCorners,
+            prevCorners,
             focal,
             pp,
             i,
-            poseInfo,
+            None,
+            True
         )
 
         # Matrixes updated, and corners updated
@@ -65,11 +67,13 @@ for i in tqdm(range(int(frame_count))):
     idx += 1
 
     # Plotting points after rotation and translation.
-    rotated_point = np.matmul(rotationArr, current_point)
-    translated_point = np.matmul(translationArr, rotated_point)
+    rotated_point = np.matmul(rotationArr, current_point).reshape(3, 1)
+
+    translated_point = np.multiply(translationArr, rotated_point)
     current_point = translated_point
     path.append(current_point)
 
+    
     # Distinguishing points in time by colour gradient.
     new_colour = (cmp + step for cmp in colours[idx - 1])
     colours.append(new_colour)
