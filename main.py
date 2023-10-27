@@ -69,7 +69,6 @@ for i in tqdm(range(int(frame_count))):
 
     # Plotting points after rotation and translation.
     rotated_point = np.matmul(rotationArr, current_point).reshape(3,1)
-    print(rotated_point)
 
 
     translated_point = np.multiply(translationArr, rotated_point)
@@ -80,14 +79,13 @@ for i in tqdm(range(int(frame_count))):
     new_colour = (cmp + step for cmp in colours[idx - 1])
     colours.append(new_colour)
 
-path = path[:-1]
+path = path[1:-1]
 x = [point[0] for point in path]
 y = [point[1] for point in path]
 z = [point[2] for point in path]
 
 flattened_x = np.array([item for sublist in x for item in (sublist if isinstance(sublist, (list, np.ndarray)) else [sublist])])
 flattened_y = np.array([item for sublist in y for item in (sublist if isinstance(sublist, (list, np.ndarray)) else [sublist])])
-
 
 # Plotting points with matplotlib in 2D.
 plt.title("Robot Path")
