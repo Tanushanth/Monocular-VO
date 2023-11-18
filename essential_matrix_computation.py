@@ -18,12 +18,29 @@ import os
 # newR: new rotation matrix
 # newt: new translation vector
 def essential_matrix_computation(
-    inputR, inputt, new, old, focal, pp, id, poseInfo, withoutPose
+    inputR,
+    inputt,
+    new,
+    old,
+    focal,
+    pp,
+    id,
+    poseInfo,
+    withoutPose,
+    camera_matrix=np.zeros(3),
 ):
-    if withoutPose:
+    if camera_matrix.any():
+        E, _ = cv2.findEssentialMat(
+            new, old, camera_matrix, cv2.RANSAC, 0.999, 1.0, None
+        )
+        # _, R, t, _ = cv2.recoverPose(E, old, new, inputR, inputt, focal, pp, None)
+        _, R, t, _ = cv2.recoverPose(E, old, new)
+
+    elif withoutPose:
         E, _ = cv2.findEssentialMat(new, old, focal, pp, cv2.RANSAC, 0.999, 1.0, None)
         # _, R, t, _ = cv2.recoverPose(E, old, new, inputR, inputt, focal, pp, None)
         _, R, t, _ = cv2.recoverPose(E, old, new)
+
     else:
         E, _ = cv2.findEssentialMat(new, old, focal, pp, cv2.RANSAC, 0.999, 1.0, None)
         # _, R, t, _ = cv2.recoverPose(E, old, new, inputR, inputt, focal, pp, None)

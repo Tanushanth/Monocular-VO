@@ -8,26 +8,28 @@ def show_image(window_name, image):
         cv2.destroyWindow(window_name)
 
 
-def get_frames(video_name, num_frames, step):
+def get_frames(video_name, start_frame, num_frames, step):
     cap = cv2.VideoCapture(video_name)
 
     if not cap.isOpened():
         print("Access error")
         exit()
 
-    idx = 0
-    frame_count = num_frames
+    idx = start_frame
+    cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
 
-    for _ in tqdm(range(int(frame_count))):
+    while idx < start_frame + num_frames:
         ret, frame = cap.read()
         if not ret:
             print("Unable to read the frame")
             continue
-        cv2.imwrite(f"frame_{idx}.jpg", frame)
-        idx += 1
+
+        cv2.imwrite(f"frames/frame_{idx}.jpg", frame)
+        idx += step
+        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
 
     cap.release()
 
 
 if __name__ == "__main__":
-    get_frames("20230605_163120.mp4", 10)
+    get_frames("competition_data.mp4", 1000, 200, 5)
