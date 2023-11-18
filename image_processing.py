@@ -18,6 +18,6 @@ def process_image(image, functions=[gray, blur]):
 
 
 if __name__ == "__main__":
-    image = cv2.imread("cuboid.jpeg")
+    image = cv2.imread("frames/frame_0.jpg")
     processed_image = process_image(image)
     show_image("Processed Image", processed_image)

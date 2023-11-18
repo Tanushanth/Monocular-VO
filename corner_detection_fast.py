@@ -37,7 +37,7 @@ def show_image_with_corners(image):
 
 
 if __name__ == "__main__":
-    image = cv2.imread("frame_0.jpg")
+    image = cv2.imread("frames/frame_0.jpg")
     image = process_image(image)
 
     show_image("Processed image", image)

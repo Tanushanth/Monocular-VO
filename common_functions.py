@@ -8,7 +8,7 @@ def show_image(window_name, image):
         cv2.destroyWindow(window_name)
 
 
-def get_frames(video_name, num_frames):
+def get_frames(video_name, num_frames, step):
     cap = cv2.VideoCapture(video_name)
 
     if not cap.isOpened():
