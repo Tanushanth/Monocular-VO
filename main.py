@@ -35,6 +35,23 @@ path = [current_point]
 colours = [(0, 0, 0)]
 step = 1
 
+count = 0
+time_limit_seconds = 1
+for i in tqdm(range(int(frame_count))):
+    ret, frame = cap.read()
+    if not ret:
+        print("Unable to read the frame")
+        continue
+    count+=1
+    if(count == 10):
+        break
+    # time_stamps_seconds = i/cap.get(cv2.CAP_PROP_FPS)
+    # if(time_stamps_seconds > time_limit_seconds):
+    #     print("Reached limit")
+    #     break
+    
+
+
 dir_name = "frames/*.jpg"
 
 # Read all images.
@@ -63,6 +80,9 @@ for i in range(len(images)):
             None,
             True,
         )
+
+        print("Rotation Matrix ", rotationArr)
+        print("Translation Matrix", translationArr)
 
         # Matrixes updated, and corners updated
         # plot result of our matrix change
@@ -133,9 +153,11 @@ for i in range(len(images)):
 #     colours.append(new_colour)
 
 path = path[1:-1]
-x = [point[0] for point in path]
-y = [point[1] for point in path]
-z = [point[2] for point in path]
+x = [point[0][0] for point in path]
+y = [point[1][0] for point in path]
+z = [point[2][0] for point in path]
+
+
 
 flattened_x = np.array(
     [
@@ -158,7 +180,11 @@ plt.plot(flattened_x, flattened_y)
 plt.show()
 
 # Plotting points with plotly in 3D.
-plot = px.scatter_3d(x=x, y=y, z=z, color=colours)
-plot.show()
+# plot = px.scatter_3d(x=x, y=y, z=z, color_continuous_scale="Viridis")
+# plot.show()
 
+plot = px.scatter_3d(x=x, y=y, z=np.arange(len(path)), color_continuous_scale="Viridis")
+# plot.update_layout(updatemenus=[dict(type='buttons', showactive=False, buttons=[dict(label='Play',
+#                                             method='animate', args=[None, dict(frame=dict(duration=100, redraw=True), fromcurrent=True)])])])
+plot.show()
 cap.release()
