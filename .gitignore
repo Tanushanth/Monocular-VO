@@ -1,3 +1,5 @@
 competition_data.mp4
 frames/
 __pycache__/
+test_frames/
+.DS_STORE
