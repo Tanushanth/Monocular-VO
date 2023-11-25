@@ -1,5 +1,5 @@
 import pyzed.sl as sl
-
+import numpy as np
 
 class ZedCamera:
     def __init__(self) -> None:
@@ -12,7 +12,9 @@ class ZedCamera:
 
         fx, fy = params.left_cam.fx, params.left_cam.fy
         cx, cy = params.left_cam.cx, params.left_cam.cy
-        self.calibration_parameters = fx, fy, cx, cy
+        self.camera_matrix = np.matrix([fx,0,cx],[0,fy,cy],[0,0,1])
+        self.dist = 0
+        self.new_camera_mtx = np.ones(3)
 
     def get_frame(self):
         image = sl.Mat()
