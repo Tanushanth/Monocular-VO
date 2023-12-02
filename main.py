@@ -80,6 +80,7 @@ for i in range(len(images)):
 
     # Always do extraction
     currentFrameCorners = extract_features(frame, True)
+    print(len(currentFrameCorners))
 
     if i != 0:
         # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
@@ -99,8 +100,8 @@ for i in range(len(images)):
             camera_matrix,
         )
 
-        print("Rotation Matrix ", rotationArr)
-        print("Translation Matrix", translationArr)
+        # print("Rotation Matrix ", rotationArr)
+        # print("Translation Matrix", translationArr)
 
         # Matrixes updated, and corners updated
         # plot result of our matrix change
