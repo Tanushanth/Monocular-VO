@@ -32,4 +32,4 @@ def get_frames(video_name, start_frame, num_frames, step):
 
 
 if __name__ == "__main__":
-    get_frames("competition_data.mp4", 1000, 200, 5)
+    get_frames("competition_data.mp4", 1195, 200, 5)

@@ -12,6 +12,8 @@ from featuretracking import feature_tracking
 from corner_detection_fast import extract_features
 from image_processing import process_image
 
+rotate_180 = np.matrix([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
+
 videopath = "competition_data.mp4"
 cap = cv2.VideoCapture(videopath)
 if not cap.isOpened():
@@ -24,14 +26,15 @@ frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 # Store previous frame's info
 prevFrameCorners = []
 prevFrame = ()
-rotationArr = np.ones(shape=(3, 3))
+rotationArr = np.eye(3)
+# rotationArr = rotate_180
 translationArr = np.empty(shape=(3, 1))
 
 camera_matrix = np.matrix([[2035.62, 0, 773.202], [0, 2019.24, 1360.42], [0, 0, 1]])
 focal = 90.7
 pp = (773.202, 1360.42)
 
-current_point = np.array([1, 1, 1])
+current_point = np.array([0, 0, 0])
 
 path = [current_point]
 colours = [(0, 0, 0)]
@@ -80,7 +83,7 @@ for i in range(len(images)):
 
     # Always do extraction
     currentFrameCorners = extract_features(frame, True)
-    print(len(currentFrameCorners))
+    # print(len(currentFrameCorners))
 
     if i != 0:
         # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
@@ -99,6 +102,8 @@ for i in range(len(images)):
             True,
             camera_matrix,
         )
+
+        # rotationArr = np.matmul(rotate_180, rotationArr)
 
         # print("Rotation Matrix ", rotationArr)
         # print("Translation Matrix", translationArr)
@@ -174,8 +179,10 @@ for i in range(len(images)):
 #     colours.append(new_colour)
 
 path = path[1:-1]
+
 x = [point[0][0] for point in path]
-y = [point[1][0] for point in path]
+
+y = [-point[1][0] for point in path]
 z = [point[2][0] for point in path]
 
 
@@ -183,9 +190,12 @@ flattened_x = np.array(
     [
         item
         for sublist in x
-        for item in (sublist if isinstance(sublist, (list, np.ndarray)) else [sublist])
+        for item in (
+            sublist if isinstance(sublist, (list, np.ndarray, np.matrix)) else [sublist]
+        )
     ]
 )
+
 flattened_y = np.array(
     [
         item
