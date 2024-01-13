@@ -1,5 +1,6 @@
-competition_data.mp4
+env/
+ __pycache__/
+ competition_data.mp4
 frames/
-__pycache__/
 test_frames/
-.DS_STORE
+.idea/

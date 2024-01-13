@@ -1,6 +1,4 @@
 import cv2
-from tqdm import tqdm
-
 
 def show_image(window_name, image):
     cv2.imshow(window_name, image)
@@ -29,6 +27,24 @@ def get_frames(video_name, start_frame, num_frames, step):
         cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
 
     cap.release()
+
+
+def get_video_capture(port):
+    cap = cv2.VideoCapture(port)
+
+    if not cap.isOpened():
+        print("Can't access camera.")
+        exit()
+    else:
+        return cap
+
+
+def get_frame(cap):
+    ret, frame = cap.read()
+    if ret:
+        return frame
+    else:
+        raise Exception("Couldn't read frame.")
 
 
 if __name__ == "__main__":

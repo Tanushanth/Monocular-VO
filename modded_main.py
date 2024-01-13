@@ -1,10 +1,8 @@
 # External module imports.
 import cv2
 import numpy as np
-from tqdm import tqdm
 from matplotlib import pyplot as plt
 import plotly.express as px
-from skimage.io import imread_collection
 
 # Internal module imports.
 from essential_matrix_computation import essential_matrix_computation
@@ -34,10 +32,10 @@ path = [current_point]
 colours = [(0, 0, 0)]
 step = 1
 
-dir_name = "frames/*.jpg"
+port = 1
+cap = get_video_capture(port)
 
-# Read all images.
-images = imread_collection(dir_name)
+images = [get_frame(cap)]
 
 
 def plot_path(path):
@@ -51,8 +49,8 @@ def plot_path(path):
             item
             for sublist in x
             for item in (
-                sublist if isinstance(sublist, (list, np.ndarray)) else [sublist]
-            )
+            sublist if isinstance(sublist, (list, np.ndarray)) else [sublist]
+        )
         ]
     )
     flattened_y = np.array(
@@ -60,8 +58,8 @@ def plot_path(path):
             item
             for sublist in y
             for item in (
-                sublist if isinstance(sublist, (list, np.ndarray)) else [sublist]
-            )
+            sublist if isinstance(sublist, (list, np.ndarray)) else [sublist]
+        )
         ]
     )
 
@@ -71,7 +69,57 @@ def plot_path(path):
     plt.show()
 
 
-for i in range(len(images)):
+def plot_path_3d(path):
+    path = path[1:-1]
+
+    x = [point[0][0] for point in path]
+
+    y = [-point[1][0] for point in path]
+    z = [point[2][0] for point in path]
+
+    flattened_x = np.array(
+        [
+            item
+            for sublist in x
+            for item in (
+            sublist if isinstance(sublist, (list, np.ndarray, np.matrix)) else [sublist]
+        )
+        ]
+    )
+
+    flattened_y = np.array(
+        [
+            item
+            for sublist in y
+            for item in (sublist if isinstance(sublist, (list, np.ndarray)) else [sublist])
+        ]
+    )
+
+    # Plotting points with matplotlib in 2D.
+    plt.title("Robot Path")
+    plt.plot(flattened_x, flattened_y)
+    plt.show()
+
+    # Plotting points with plotly in 3D.
+    # plot = px.scatter_3d(x=x, y=y, z=z, color_continuous_scale="Viridis")
+    # plot.show()
+
+    plot = px.scatter_3d(
+        x=x,
+        y=y,
+        z=np.arange(len(path)),
+        color_continuous_scale="Viridis",
+    )
+    # plot.update_layout(updatemenus=[dict(type='buttons', showactive=False, buttons=[dict(label='Play',
+    #                                             method='animate', args=[None, dict(frame=dict(duration=100, redraw=True), fromcurrent=True)])])])
+    plot.update_traces(marker_size=3)
+    plot.show()
+    cap.release()
+
+
+i = 0
+print(i)
+while True:
     # Process image
     frame = process_image(images[i])
 
@@ -121,51 +169,8 @@ for i in range(len(images)):
     new_colour = (cmp + step for cmp in colours[idx - 1])
     colours.append(new_colour)
 
-    # plot_path(path)
+    plot_path_3d(path)
+    i += 1
+    images.append(get_frame(cap))
 
-path = path[1:-1]
-
-x = [point[0][0] for point in path]
-
-y = [-point[1][0] for point in path]
-z = [point[2][0] for point in path]
-
-
-flattened_x = np.array(
-    [
-        item
-        for sublist in x
-        for item in (
-            sublist if isinstance(sublist, (list, np.ndarray, np.matrix)) else [sublist]
-        )
-    ]
-)
-
-flattened_y = np.array(
-    [
-        item
-        for sublist in y
-        for item in (sublist if isinstance(sublist, (list, np.ndarray)) else [sublist])
-    ]
-)
-
-# Plotting points with matplotlib in 2D.
-plt.title("Robot Path")
-plt.plot(flattened_x, flattened_y)
-plt.show()
-
-# Plotting points with plotly in 3D.
-# plot = px.scatter_3d(x=x, y=y, z=z, color_continuous_scale="Viridis")
-# plot.show()
-
-plot = px.scatter_3d(
-    x=x,
-    y=y,
-    z=np.arange(len(path)),
-    color_continuous_scale="Viridis",
-)
-# plot.update_layout(updatemenus=[dict(type='buttons', showactive=False, buttons=[dict(label='Play',
-#                                             method='animate', args=[None, dict(frame=dict(duration=100, redraw=True), fromcurrent=True)])])])
-plot.update_traces(marker_size=3)
-plot.show()
-cap.release()
+    print(i)
