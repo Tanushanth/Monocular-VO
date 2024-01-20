@@ -15,6 +15,9 @@ rotate_180 = np.matrix([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
 
 idx = 0
 
+# Next frame = Current Frame idx + frameStep (1 is consecutive frames)
+frameStep = 1
+
 # Store previous frame's info
 prevFrameCorners = []
 prevFrame = ()
@@ -156,7 +159,7 @@ while True:
     prevFrameCorners = currentFrameCorners  # Save i-1 frame
     prevFrame = frame
     # cv2.imwrite(f"frame_{idx}.jpg", frame)
-    idx += 1
+    idx += frameStep
 
     # Plotting points after rotation and translation.
     rotated_point = np.matmul(rotationArr, current_point).reshape(3, 1)
@@ -170,7 +173,7 @@ while True:
     colours.append(new_colour)
 
     plot_path_3d(path)
-    i += 1
+    i += frameStep
     images.append(get_frame(cap))
 
     print(i)
