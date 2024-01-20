@@ -130,7 +130,7 @@ while True:
     currentFrameCorners = extract_features(frame, True)
     # print(len(currentFrameCorners))
 
-    if i != 0:
+    if i != 0 and (len(prevFrameCorners) and len(currentFrameCorners) > 0):
         # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
         prevCorners, curCorners = feature_tracking(
             prevFrame, frame, prevFrameCorners, currentFrameCorners
@@ -155,7 +155,11 @@ while True:
 
         # Matrixes updated, and corners updated
         # plot result of our matrix change
-
+    else:
+        if((len(prevFrameCorners) and len(currentFrameCorners) > 0)):
+            print("0 Features Detected, Skipping Frame")
+        else:
+            print("Skipping first frame")
     prevFrameCorners = currentFrameCorners  # Save i-1 frame
     prevFrame = frame
     # cv2.imwrite(f"frame_{idx}.jpg", frame)
