@@ -7,10 +7,11 @@ import plotly.express as px
 # Internal module imports.
 from essential_matrix_computation import essential_matrix_computation
 from featuretracking import feature_tracking
-from corner_detection_fast import extract_features
+from corner_detection_orb import extract_features
 from image_processing import process_image
 from common_functions import *
-
+from input_reading import ZedCamera
+import time
 rotate_180 = np.matrix([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
 
 idx = 0
@@ -35,11 +36,12 @@ path = [current_point]
 colours = [(0, 0, 0)]
 step = 1
 
-port = 1
-cap = get_video_capture(port)
+#port = 1
+#cap = get_video_capture(port)
+zed = ZedCamera()
 
-images = [get_frame(cap)]
 
+images = [zed.get_frame()]
 
 def plot_path(path):
     path = path[1:-1]
@@ -117,67 +119,74 @@ def plot_path_3d(path):
     #                                             method='animate', args=[None, dict(frame=dict(duration=100, redraw=True), fromcurrent=True)])])])
     plot.update_traces(marker_size=3)
     plot.show()
-    cap.release()
+    #cap.release()
 
 
 i = 0
 print(i)
-while True:
-    # Process image
-    frame = process_image(images[i])
+try:
+    while True:
+        # Process image
+        frame = process_image(images[i])
 
-    # Always do extraction
-    currentFrameCorners = extract_features(frame, True)
-    # print(len(currentFrameCorners))
+        # Always do extraction
+        currentFrameCorners = extract_features(frame, True)
+        # print(len(currentFrameCorners))
 
-    if i != 0 and (len(prevFrameCorners) and len(currentFrameCorners) > 0):
-        # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
-        prevCorners, curCorners = feature_tracking(
-            prevFrame, frame, prevFrameCorners, currentFrameCorners
-        )
-        rotationArr, translationArr = essential_matrix_computation(
-            rotationArr,
-            translationArr,
-            curCorners,
-            prevCorners,
-            focal,
-            pp,
-            i,
-            None,
-            True,
-            camera_matrix,
-        )
+        if i != 0 and (len(prevFrameCorners) and len(currentFrameCorners) > 0):
+            # logic with prevFrameCorners which would be i-1 frame, and currentFrameCorners
+            prevCorners, curCorners = feature_tracking(
+                prevFrame, frame, prevFrameCorners, currentFrameCorners
+            )
+            try:
+                rotationArr, translationArr = essential_matrix_computation(
+                    rotationArr,
+                    translationArr,
+                    curCorners,
+                    prevCorners,
+                    focal,
+                    pp,
+                    i,
+                    None,
+                    True,
+                    camera_matrix,
+                )
+            except Exception:
+                print("error with essential matrix computation")
+            # rotationArr = np.matmul(rotate_180, rotationArr)
 
-        # rotationArr = np.matmul(rotate_180, rotationArr)
+            # print("Rotation Matrix ", rotationArr)
+            # print("Translation Matrix", translationArr)
 
-        # print("Rotation Matrix ", rotationArr)
-        # print("Translation Matrix", translationArr)
-
-        # Matrixes updated, and corners updated
-        # plot result of our matrix change
-    else:
-        if((len(prevFrameCorners) and len(currentFrameCorners) > 0)):
-            print("0 Features Detected, Skipping Frame")
+            # Matrixes updated, and corners updated
+            # plot result of our matrix change
         else:
-            print("Skipping first frame")
-    prevFrameCorners = currentFrameCorners  # Save i-1 frame
-    prevFrame = frame
-    # cv2.imwrite(f"frame_{idx}.jpg", frame)
-    idx += frameStep
+            if((len(prevFrameCorners) and len(currentFrameCorners) > 0)):
+                print("0 Features Detected, Skipping Frame")
+            else:
+                print("Skipping first frame")
+        prevFrameCorners = currentFrameCorners  # Save i-1 frame
+        prevFrame = frame
+        # cv2.imwrite(f"frame_{idx}.jpg", frame)
+        idx += frameStep
 
-    # Plotting points after rotation and translation.
-    rotated_point = np.matmul(rotationArr, current_point).reshape(3, 1)
+        # Plotting points after rotation and translation.
+        rotated_point = np.matmul(rotationArr, current_point).reshape(3, 1)
 
-    translated_point = rotated_point + translationArr
-    current_point = translated_point
-    path.append(current_point)
+        translated_point = rotated_point + translationArr
+        current_point = translated_point
+        path.append(current_point)
 
-    # Distinguishing points in time by colour gradient.
-    new_colour = (cmp + step for cmp in colours[idx - 1])
-    colours.append(new_colour)
+        # Distinguishing points in time by colour gradient.
+        new_colour = (cmp + step for cmp in colours[idx - 1])
+        colours.append(new_colour)
 
-    plot_path_3d(path)
-    i += frameStep
-    images.append(get_frame(cap))
+        #plot_path_3d(path)
+        i += frameStep
+        images.append(zed.get_frame())
 
-    print(i)
+        print(i)
+except KeyboardInterrupt:
+    plot_path(path)
+    
+    zed.close()

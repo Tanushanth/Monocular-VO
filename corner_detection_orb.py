@@ -8,7 +8,7 @@ def extract_features(image, isNmsEnabled: bool) -> any:
     num_features = 100
 
     # Use FAST_SCORE to sacrifice repeatability for speed.
-    orb = cv2.ORB_create(nfeatures=num_features, scoreType=cv2.HARRIS_SCORE)
+    orb = cv2.ORB_create(nfeatures=num_features)
 
     # Amount of the borders to ignore.
     edgeThreshold = 20
